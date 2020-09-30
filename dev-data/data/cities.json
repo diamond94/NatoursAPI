@@ -1,0 +1,56 @@
+[
+  {
+    "id": 0,
+    "cityName": "Zanjan",
+    "country": "iran",
+    "elevation": "1,638m",
+    "urban": 430.871,
+    "rank": "20th in iran",
+    "TimeZone": "UTC+3:30"
+  },
+  {
+    "id": 1,
+    "cityName": "Tehran",
+    "country": "iran",
+    "elevation": "900 to 1830m",
+    "urban": 1780,
+    "rank": "1st in iran",
+    "TimeZone": "UTC+3:30"
+  },
+  {
+    "id": 2,
+    "cityName": "London",
+    "country": "UK",
+    "elevation": "11m",
+    "urban": 1572,
+    "rank": "1st in England",
+    "TimeZone": "UTC"
+  },
+  {
+    "id": 3,
+    "cityName": "Chicago",
+    "country": "US",
+    "elevation": "182",
+    "urban": 5496,
+    "rank": "3rd in us",
+    "TimeZone": "UTC-6:00"
+  },
+  {
+    "id": 4,
+    "cityName": "Seoul",
+    "country": "South Korea",
+    "elevation": "38m",
+    "urban": 605,
+    "rank": "1st in South Korea",
+    "TimeZone": "UTC+8:30"
+  },
+  {
+    "id": 5,
+    "cityName": "Arak",
+    "country": "Iran",
+    "elevation": "1300m",
+    "urban": 950,
+    "rank": "14th in Iran",
+    "TimeZone": "UTC+3:30"
+  }
+]
