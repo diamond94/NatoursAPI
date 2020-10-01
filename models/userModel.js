@@ -66,7 +66,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
     select: false
-  }
+  },
+  emailActive: {
+    type: Boolean,
+    default: false
+  },
+  emailActiveationToken: String
 });
 
 userSchema.pre('save', async function(next) {
@@ -120,6 +125,15 @@ userSchema.methods.createPasswordResetToken = function() {
 
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 Min
   return resetToken;
+};
+
+userSchema.methods.emailActivationToken = function() {
+  const emailToken = crypto.randomBytes(128).toString('hex');
+  this.emailActiveationToken = crypto
+    .createHash('sha256')
+    .update(emailToken)
+    .digest('hex');
+  return emailToken;
 };
 
 const User = mongoose.model('User', userSchema);

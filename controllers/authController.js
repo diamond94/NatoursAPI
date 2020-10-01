@@ -12,6 +12,25 @@ const signToken = id => {
   });
 };
 
+const emailActivation = async (user, req) => {
+  const emailActiveToken = user.emailActivationToken();
+  await user.save({ validateBeforeSave: false });
+
+  const emailActiveURL = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/users/activeEmail/${emailActiveToken}`;
+
+  const message = `<h3 style="text-align:center;color:green;">Please Active your Email Address<h3><div>
+  \n<div style ="text-align: justify"><h5> Submit a patch request to link:<a href="${emailActiveURL}">Email Activation</a>\n
+  if you didn't Request Email Activation please Ignore this Email`;
+
+  sendEmail({
+    email: user.email,
+    subject: `YOUR Email Activation Token.`,
+    html: message
+  });
+};
+
 exports.signUp = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -21,14 +40,58 @@ exports.signUp = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm
   });
 
+  // send email to active account
+  emailActivation(newUser, req);
+
   const token = signToken(newUser._id);
   res.status(201).json({
     status: 'success',
     token,
+    message: `Email Activation URL has been sent to Your Email Address Please Confirm Your Email Address.`,
     data: {
       user: newUser
     }
   });
+});
+
+exports.emailActivationRequest = catchAsync(async (req, res, next) => {
+  const { user } = req;
+  if (user.emailActive) {
+    return next(new AppError(`Your Email is actived!!`, 400));
+  }
+  emailActivation(user, req);
+
+  res.status(200).json({
+    status: 'success',
+    message: `Email Activation URL has been sent to Your Email Address Please Confirm Your Email Address.`
+  });
+});
+
+exports.activeEmail = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({ emailActiveationToken: hashedToken });
+  if (!user) {
+    return next(new AppError(`Token is Invalid or has Expired!!`, 400));
+  }
+  user.emailActive = true;
+  user.emailActiveationToken = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    status: 'success',
+    message: `Your Email has been Actived Successfuly!`
+  });
+});
+
+exports.checkEmailActivation = catchAsync(async (req, res, next) => {
+  if (!req.user.emailActive) {
+    return next(new AppError(`Please Active your Email Address to access this Route!`, 403));
+  }
+  next();
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -52,13 +115,6 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'success',
     Role: user.role,
     token
-  });
-});
-
-exports.logout = catchAsync(async (req, res, next) => {
-  req.headers.authorization = null;
-  res.status(200).json({
-    status: 'success'
   });
 });
 
