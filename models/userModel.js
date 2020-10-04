@@ -71,7 +71,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  emailActiveationToken: String
+  emailActiveationToken: String,
+  loginAttempts: {
+    type: Number,
+    default: 0
+  },
+  lockOutDate: Date
 });
 
 userSchema.pre('save', async function(next) {
@@ -134,6 +139,15 @@ userSchema.methods.emailActivationToken = function() {
     .update(emailToken)
     .digest('hex');
   return emailToken;
+};
+
+userSchema.methods.checkLogin = function(limit) {
+  if (this.loginAttempts < limit) {
+    this.loginAttempts += 1;
+  }
+  if (this.loginAttempts >= limit) {
+    this.lockOutDate = Date.now() + 30 * 60 * 1000;
+  }
 };
 
 const User = mongoose.model('User', userSchema);

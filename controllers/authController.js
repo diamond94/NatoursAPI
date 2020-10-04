@@ -103,6 +103,7 @@ exports.checkEmailActivation = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
+  const limit = 5;
 
   // 1)- Check if email & password exits
   if (!email || !password) {
@@ -111,10 +112,31 @@ exports.login = catchAsync(async (req, res, next) => {
   // 2)- Check if user exists && password are valid
   const user = await User.findOne({ email: email }).select('+password'); // to select field wich by fields is false we should add + sign befor that
 
+  // check if user login is locked out
+  if (user) {
+    if (user.lockOutDate > Date.now()) {
+      return next(new AppError(`please try 30 minutes later!`, 423));
+    }
+    if (user.lockOutDate < Date.now()) {
+      user.lockOutDate = undefined;
+      user.loginAttempts = 0;
+      await user.save({ validateBeforeSave: false });
+    }
+  }
+
   // instance method is available on all the user document
   if (!user || !(await user.correctPassword(password, user.password))) {
+    // check user loginAttempts
+    if (user) {
+      user.checkLogin(limit);
+      await user.save({ validateBeforeSave: false });
+    }
     return next(new AppError(`Incorrect email or password!`, 401));
   }
+
+  user.lockOutDate = undefined;
+  user.loginAttempts = 0;
+  await user.save({ validateBeforeSave: false });
   // 3)- if everything is ok, send Token to client
   const token = signToken(user._id);
 
