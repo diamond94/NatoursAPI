@@ -44,6 +44,13 @@ exports.signUp = catchAsync(async (req, res, next) => {
   emailActivation(newUser, req);
 
   const token = signToken(newUser._id);
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 60 * 60 * 24),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+
   res.status(201).json({
     status: 'success',
     token,
@@ -111,6 +118,12 @@ exports.login = catchAsync(async (req, res, next) => {
   // 3)- if everything is ok, send Token to client
   const token = signToken(user._id);
 
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 60 * 60 * 24),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
   res.status(200).json({
     status: 'success',
     Role: user.role,
@@ -218,6 +231,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 4- log the user in , sen jwt
   const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 60 * 60 * 24),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', token, cookieOptions);
+
   res.status(200).json({
     status: 'success',
     Role: user.role,
@@ -242,6 +263,14 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // 4- log the user in , send jwt
   const newToken = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 60 * 60 * 24),
+    httpOnly: true
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  res.cookie('jwt', newToken, cookieOptions);
+
   res.status(200).json({
     status: 'success',
     Role: user.role,
