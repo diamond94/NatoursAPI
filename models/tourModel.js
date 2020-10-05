@@ -81,7 +81,31 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: Boolean, // if true => secret tour and we don't want to show up
       default: false // by default it is false, coz usually tours are not secret
-    }
+    },
+    startLocation: {
+      //GeoJson for GeoSpatial Date
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: [Number],
+      address: String,
+      description: String
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ]
   },
   // this object here called : schema options
   {
