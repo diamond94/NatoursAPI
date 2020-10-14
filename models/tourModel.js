@@ -115,17 +115,20 @@ const tourSchema = new mongoose.Schema(
   },
   // this object here called : schema options
   {
-    toJSON: {
-      virtuals: true
-    },
-    toObject: {
-      virtuals: true
-    }
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
+});
+
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
 });
 
 // DOCUMENT MIDDLEWARE : runs before the save() and create() command but not on insertmany( )
